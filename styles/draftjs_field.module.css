@@ -1,0 +1,15 @@
+.draftjs__field {
+  border: 1px solid black;
+}
+
+.draftjs__field_error {
+  border: 1px solid red;
+}
+
+/* .draftjs__label {
+
+} */
+
+.draftjs__error {
+  color: red;
+}
