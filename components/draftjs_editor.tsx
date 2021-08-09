@@ -1,8 +1,7 @@
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { FC, FocusEvent, useEffect, useState } from "react";
 import { EditorState, convertToRaw, ContentState } from "draft-js";
 import dynamic from "next/dynamic";
 import draftToHtml from "draftjs-to-html";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const Editor = dynamic(
   async () => {
@@ -15,11 +14,17 @@ const Editor = dynamic(
 interface IProps {
   initialValue: string;
   onChange(val: string): void;
+  onBlur?(e: FocusEvent<any>): void;
+  wrapperClassName?: string;
 }
 
-const DraftjsEditor: FC<IProps> = ({ initialValue, onChange }) => {
+const DraftjsEditor: FC<IProps> = ({
+  initialValue,
+  onChange,
+  onBlur,
+  wrapperClassName = "drafjs__wrapper",
+}) => {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [value, setValue] = useState(initialValue || "");
 
   useEffect(() => {
     dynamicImportFunc();
@@ -35,57 +40,37 @@ const DraftjsEditor: FC<IProps> = ({ initialValue, onChange }) => {
         );
         const editorState = EditorState.createWithContent(contentState);
         setEditorState(editorState);
-        setValue(draftToHtml(convertToRaw(editorState.getCurrentContent())));
       }
     }
   };
 
   const onEditorChange = (editorState: EditorState): void => {
+    const newValue = draftToHtml(convertToRaw(editorState.getCurrentContent()));
     setEditorState(editorState);
-    setValue(draftToHtml(convertToRaw(editorState.getCurrentContent())));
+    onChange(newValue);
   };
 
-  const onEditorBlur = useCallback(() => {
-    onChange(value.trim());
-  }, [onChange, value]);
-
   return (
-    <>
-      <Editor
-        editorState={editorState}
-        wrapperClassName='drafjs__wrapper'
-        editorClassName='drafjs__editor'
-        onEditorStateChange={onEditorChange}
-        toolbar={toolbarOptions}
-        onBlur={onEditorBlur}
-      />
-      <p>{value}</p>
-    </>
+    <Editor
+      editorState={editorState}
+      wrapperClassName={wrapperClassName}
+      editorClassName="drafjs__editor"
+      toolbarClassName="drafjs__toolbar"
+      onEditorStateChange={onEditorChange}
+      toolbar={toolbarOptions}
+      onBlur={onBlur}
+    />
   );
 };
 
 const toolbarOptions = {
-  options: [
-    "inline",
-    "blockType",
-    "list",
-    "textAlign",
-    "link",
-    "emoji",
-    "history",
-  ],
+  options: ["inline", "blockType", "list", "textAlign", "history"],
   inline: {
     inDropdown: false,
     className: undefined,
     component: undefined,
     dropdownClassName: undefined,
-    options: [
-      "bold",
-      "italic",
-      "underline",
-      "strikethrough",
-      "monospace" /* 'monospace', 'superscript', 'subscript' */,
-    ],
+    options: ["bold", "italic", "underline", "strikethrough", "monospace"],
   },
   blockType: {
     inDropdown: true,
@@ -106,7 +91,7 @@ const toolbarOptions = {
     className: undefined,
     component: undefined,
     dropdownClassName: undefined,
-    options: ["unordered", "ordered" /* 'indent', 'outdent' */],
+    options: ["unordered", "ordered"],
   },
   textAlign: {
     inDropdown: false,

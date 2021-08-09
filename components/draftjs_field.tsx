@@ -1,45 +1,37 @@
-import { FC, ReactNode } from "react";
-import {
-  Field,
-  FieldInputProps,
-  FieldMetaProps,
-  Form,
-  Formik,
-  FormikProps,
-  useField,
-} from "formik";
+import cs from "classnames";
+import { FieldInputProps, FormikProps } from "formik";
+import { FC } from "react";
 import DraftjsEditor from "./draftjs_editor";
-import styles from "../styles/draftjs_field.module.css";
 
 interface IProps {
+  field: FieldInputProps<any>;
+  form: FormikProps<any>;
   label: string;
-  name: string;
-  initialValue: string;
-  FieldConfig: any;
-  onChange(val: string): void
-  // props: any;
+  onChange: (field: string, value: any, shouldValidate?: boolean) => void;
 }
 
-const DraftjsField: FC<IProps> = ({ onChange, ...props }) => {
-  const [field, meta] = useField(props);
+const DraftjsField: FC<IProps> = ({ field, form, label, onChange }) => {
+  const isErrors = !!!(form?.errors && field.name);
+  const isInvalid = form?.touched && field.name && isErrors;
   return (
-    <div className={meta.touched && meta.error ? styles.draftjs__field_error : styles.draftjs__field}>
-      <label className={styles.draftjs__label}>
-        <DraftjsEditor {...field} {...props} onChange={onChange} />
-      </label>
-      {meta.touched && meta.error ? (
-        <div className={styles.draftjs__error}>{meta.error}</div>
-      ) : null}
-    </div>
+    <label
+      className={cs("draftjs__field", {
+        "draftjs__field--error": isInvalid,
+      })}
+    >
+      <p className='draftjs__label'>{label}</p>
+      <DraftjsEditor
+        initialValue={field?.value}
+        onChange={(msg) => {
+          onChange(field.name, msg);
+        }}
+        onBlur={form?.handleBlur(field.name)}
+        wrapperClassName={cs("drafjs__wrapper", {
+          "drafjs__wrapper--error": isInvalid,
+        })}
+      />
+      {isInvalid && <span className='input__error'>{isErrors}</span>}
+    </label>
   );
 };
-// const DraftjsField = ({
-//   field, form, label, ...props
-// }) => {
-//   <label
-//     className={get(form.touched, field.name)
-//       && get(form.errors, field.name)styles.draftjs__label}
-
-//   </label>
-// }
 export default DraftjsField;

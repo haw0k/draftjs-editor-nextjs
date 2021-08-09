@@ -1,10 +1,9 @@
 import Head from "next/head";
 import React, { useCallback, useState } from "react";
-// import DraftjsEditor from "../components/draftjs_editor";
-import DraftjsField from "../components/draftjs_field";
-
+import DraftjsEditor from "../components/draftjs_editor";
 
 const html = "<p>Hey this <strong>editor</strong> rocks 😀</p>";
+
 export default function Home() {
   const [text, setText] = useState(html);
 
@@ -27,9 +26,7 @@ export default function Home() {
 
       <main className='main'>
         <h1 className='title'>Draftjs HTML Next.js textarea demo</h1>
-        {/* <DraftjsEditor initialValue={html} onChange={changeText}/> */}
-        <DraftjsField initialValue={html} onChange={changeText} />
-
+        <DraftjsEditor initialValue={html} onChange={changeText} />
       </main>
 
       <footer className='footer'>
